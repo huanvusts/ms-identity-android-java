@@ -1,21 +1,21 @@
 {
-  "client_id" : "e5737214-6372-472c-a85a-68e8fbe6cf3c",
-  "redirect_uri" : "msauth://com.azuresamples.msalandroidapp/1wIqXSqBj7w%2Bh11ZifsnqwgyKrY%3D",
+  "client_id" : "a07ecc71-a16d-4327-a231-7d6a60d052ea",
+  "redirect_uri" : "msauth://com.saigonthink.poc.b2c/JT6%2BNmaebjCknIwbtnUv6DSy3hM%3D",
   "account_mode" : "MULTIPLE",
-  "broker_redirect_uri_registered": false,
+  "broker_redirect_uri_registered": true,
   "authorities": [
     {
       "type": "B2C",
-      "authority_url": "https://fabrikamb2c.b2clogin.com/tfp/fabrikamb2c.onmicrosoft.com/b2c_1_susi/",
+      "authority_url": "https://stpocb2c.b2clogin.com/tfp/stpocb2c.onmicrosoft.com/B2C_1_poc_signup_signin/",
       "default": true
     },
     {
       "type": "B2C",
-      "authority_url": "https://fabrikamb2c.b2clogin.com/tfp/fabrikamb2c.onmicrosoft.com/b2c_1_edit_profile/"
+      "authority_url": "https://stpocb2c.b2clogin.com/tfp/stpocb2c.onmicrosoft.com/B2C_1_PoC_EditProfile/"
     },
     {
       "type": "B2C",
-      "authority_url": "https://fabrikamb2c.b2clogin.com/tfp/fabrikamb2c.onmicrosoft.com/b2c_1_reset/"
+      "authority_url": "https://stpocb2c.b2clogin.com/tfp/stpocb2c.onmicrosoft.com/B2C_1_PoC_Reset/"
     }
   ]
 }
