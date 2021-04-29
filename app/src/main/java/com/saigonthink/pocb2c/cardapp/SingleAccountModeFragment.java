@@ -21,20 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.azuresamples.msalandroidapp;
+package com.saigonthink.pocb2c.cardapp;
 
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,8 +42,8 @@ import com.android.volley.VolleyError;
 import com.microsoft.identity.client.AuthenticationCallback;
 import com.microsoft.identity.client.IAccount;
 import com.microsoft.identity.client.IAuthenticationResult;
-import com.microsoft.identity.client.IMultipleAccountPublicClientApplication;
 import com.microsoft.identity.client.IPublicClientApplication;
+import com.microsoft.identity.client.ISingleAccountPublicClientApplication;
 import com.microsoft.identity.client.PublicClientApplication;
 import com.microsoft.identity.client.SilentAuthenticationCallback;
 import com.microsoft.identity.client.exception.MsalClientException;
@@ -54,51 +53,58 @@ import com.microsoft.identity.client.exception.MsalUiRequiredException;
 
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Implementation sample for 'Multiple account' mode.
+ * Implementation sample for 'Single account' mode.
+ * <p>
+ * If your app only supports one account being signed-in at a time, this is for you.
+ * This requires "account_mode" to be set as "SINGLE" in the configuration file.
+ * (Please see res/raw/auth_config_single_account.json for more info).
+ * <p>
+ * Please note that switching mode (between 'single' and 'multiple' might cause a loss of data.
  */
-public class MultipleAccountModeFragment extends Fragment {
+public class SingleAccountModeFragment extends Fragment {
     private static final String TAG = SingleAccountModeFragment.class.getSimpleName();
 
     /* UI & Debugging Variables */
-    Button removeAccountButton;
+    Button signInButton;
+    Button signOutButton;
     Button callGraphApiInteractiveButton;
     Button callGraphApiSilentButton;
     TextView scopeTextView;
     TextView graphResourceTextView;
     TextView logTextView;
-    Spinner accountListSpinner;
+    TextView currentUserTextView;
+    TextView deviceModeTextView;
 
     /* Azure AD Variables */
-    private IMultipleAccountPublicClientApplication mMultipleAccountApp;
-    private List<IAccount> accountList;
+    private ISingleAccountPublicClientApplication mSingleAccountApp;
+    private IAccount mAccount;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        final View view = inflater.inflate(R.layout.fragment_multiple_account_mode, container, false);
+        final View view = inflater.inflate(R.layout.fragment_single_account_mode, container, false);
         initializeUI(view);
 
         // Creates a PublicClientApplication object with res/raw/auth_config_single_account.json
-        PublicClientApplication.createMultipleAccountPublicClientApplication(getContext(),
-                R.raw.auth_config_multiple_account,
-                new IPublicClientApplication.IMultipleAccountApplicationCreatedListener() {
+        PublicClientApplication.createSingleAccountPublicClientApplication(getContext(),
+                R.raw.auth_config_single_account,
+                new IPublicClientApplication.ISingleAccountApplicationCreatedListener() {
                     @Override
-                    public void onCreated(IMultipleAccountPublicClientApplication application) {
-                        mMultipleAccountApp = application;
-                        loadAccounts();
+                    public void onCreated(ISingleAccountPublicClientApplication application) {
+                        /**
+                         * This test app assumes that the app is only going to support one account.
+                         * This requires "account_mode" : "SINGLE" in the config json file.
+                         **/
+                        mSingleAccountApp = application;
+                        loadAccount();
                     }
 
                     @Override
                     public void onError(MsalException exception) {
                         displayError(exception);
-                        removeAccountButton.setEnabled(false);
-                        callGraphApiInteractiveButton.setEnabled(false);
-                        callGraphApiSilentButton.setEnabled(false);
                     }
                 });
 
@@ -109,88 +115,101 @@ public class MultipleAccountModeFragment extends Fragment {
      * Initializes UI variables and callbacks.
      */
     private void initializeUI(@NonNull final View view) {
-        removeAccountButton = view.findViewById(R.id.btn_removeAccount);
+        signInButton = view.findViewById(R.id.btn_signIn);
+        signOutButton = view.findViewById(R.id.btn_removeAccount);
         callGraphApiInteractiveButton = view.findViewById(R.id.btn_callGraphInteractively);
         callGraphApiSilentButton = view.findViewById(R.id.btn_callGraphSilently);
         scopeTextView = view.findViewById(R.id.scope);
         graphResourceTextView = view.findViewById(R.id.msgraph_url);
         logTextView = view.findViewById(R.id.txt_log);
-        accountListSpinner = view.findViewById(R.id.account_list);
+        currentUserTextView = view.findViewById(R.id.current_user);
+        deviceModeTextView = view.findViewById(R.id.device_mode);
 
         final String defaultGraphResourceUrl = MSGraphRequestWrapper.MS_GRAPH_ROOT_ENDPOINT + "v1.0/me";
         graphResourceTextView.setText(defaultGraphResourceUrl);
 
-        removeAccountButton.setOnClickListener(new View.OnClickListener() {
+        signInButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (mMultipleAccountApp == null) {
+                if (mSingleAccountApp == null) {
+                    return;
+                }
+
+                mSingleAccountApp.signIn(getActivity(), null, getScopes(), getAuthInteractiveCallback());
+            }
+        });
+
+        signOutButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (mSingleAccountApp == null) {
                     return;
                 }
 
                 /**
-                 * Removes the selected account and cached tokens from this app (or device, if the device is in shared mode).
+                 * Removes the signed-in account and cached tokens from this app (or device, if the device is in shared mode).
                  */
-                mMultipleAccountApp.removeAccount(accountList.get(accountListSpinner.getSelectedItemPosition()),
-                        new IMultipleAccountPublicClientApplication.RemoveAccountCallback() {
-                            @Override
-                            public void onRemoved() {
-                                Toast.makeText(getContext(), "Account removed.", Toast.LENGTH_SHORT)
-                                        .show();
+                mSingleAccountApp.signOut(new ISingleAccountPublicClientApplication.SignOutCallback() {
+                    @Override
+                    public void onSignOut() {
+                        mAccount = null;
+                        updateUI();
+                        showToastOnSignOut();
+                    }
 
-                                /* Reload account asynchronously to get the up-to-date list. */
-                                loadAccounts();
-                            }
-
-                            @Override
-                            public void onError(@NonNull MsalException exception) {
-                                displayError(exception);
-                            }
-                        });
+                    @Override
+                    public void onError(@NonNull MsalException exception) {
+                        displayError(exception);
+                    }
+                });
             }
         });
 
         callGraphApiInteractiveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (mMultipleAccountApp == null) {
+                if (mSingleAccountApp == null) {
                     return;
                 }
 
                 /**
-                 * Acquire token interactively. It will also create an account object for the silent call as a result (to be obtained by getAccount()).
-                 *
-                 * If acquireTokenSilent() returns an error that requires an interaction,
+                 * If acquireTokenSilent() returns an error that requires an interaction (MsalUiRequiredException),
                  * invoke acquireToken() to have the user resolve the interrupt interactively.
                  *
                  * Some example scenarios are
                  *  - password change
-                 *  - the resource you're acquiring a token for has a stricter set of requirement than your SSO refresh token.
+                 *  - the resource you're acquiring a token for has a stricter set of requirement than your Single Sign-On refresh token.
                  *  - you're introducing a new scope which the user has never consented for.
                  */
-                mMultipleAccountApp.acquireToken(getActivity(), getScopes(), getAuthInteractiveCallback());
+                mSingleAccountApp.acquireToken(getActivity(), getScopes(), getAuthInteractiveCallback());
             }
         });
 
         callGraphApiSilentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mMultipleAccountApp == null) {
+                if (mSingleAccountApp == null) {
                     return;
                 }
 
-                final IAccount selectedAccount = accountList.get(accountListSpinner.getSelectedItemPosition());
-
                 /**
-                 * Performs acquireToken without interrupting the user.
-                 *
-                 * This requires an account object of the account you're obtaining a token for.
-                 * (can be obtained via getAccount()).
+                 * Once you've signed the user in,
+                 * you can perform acquireTokenSilent to obtain resources without interrupting the user.
                  */
-                mMultipleAccountApp.acquireTokenSilentAsync(getScopes(),
-                        selectedAccount,
-                        selectedAccount.getAuthority(),
-                        getAuthSilentCallback());
+                mSingleAccountApp.acquireTokenSilentAsync(getScopes(), mAccount.getAuthority(), getAuthSilentCallback());
             }
         });
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        /**
+         * The account may have been removed from the device (if broker is in use).
+         *
+         * In shared device mode, the account might be signed in/out by other apps while this app is not in focus.
+         * Therefore, we want to update the account state by invoking loadAccount() here.
+         */
+        loadAccount();
     }
 
     /**
@@ -202,23 +221,31 @@ public class MultipleAccountModeFragment extends Fragment {
     }
 
     /**
-     * Load currently signed-in accounts, if there's any.
+     * Load the currently signed-in account, if there's any.
      */
-    private void loadAccounts() {
-        if (mMultipleAccountApp == null) {
+    private void loadAccount() {
+        if (mSingleAccountApp == null) {
             return;
         }
 
-        mMultipleAccountApp.getAccounts(new IPublicClientApplication.LoadAccountsCallback() {
+        mSingleAccountApp.getCurrentAccountAsync(new ISingleAccountPublicClientApplication.CurrentAccountCallback() {
             @Override
-            public void onTaskCompleted(final List<IAccount> result) {
+            public void onAccountLoaded(@Nullable IAccount activeAccount) {
                 // You can use the account data to update your UI or your app database.
-                accountList = result;
-                updateUI(accountList);
+                mAccount = activeAccount;
+                updateUI();
             }
 
             @Override
-            public void onError(MsalException exception) {
+            public void onAccountChanged(@Nullable IAccount priorAccount, @Nullable IAccount currentAccount) {
+                if (currentAccount == null) {
+                    // Perform a cleanup task as the signed-in account changed.
+                    showToastOnSignOut();
+                }
+            }
+
+            @Override
+            public void onError(@NonNull MsalException exception) {
                 displayError(exception);
             }
         });
@@ -269,11 +296,12 @@ public class MultipleAccountModeFragment extends Fragment {
                 Log.d(TAG, "Successfully authenticated");
                 Log.d(TAG, "ID Token: " + authenticationResult.getAccount().getClaims().get("id_token"));
 
+                /* Update account */
+                mAccount = authenticationResult.getAccount();
+                updateUI();
+
                 /* call graph */
                 callGraphAPI(authenticationResult);
-
-                /* Reload account asynchronously to get the up-to-date list. */
-                loadAccounts();
             }
 
             @Override
@@ -299,10 +327,6 @@ public class MultipleAccountModeFragment extends Fragment {
 
     /**
      * Make an HTTP request to obtain MSGraph data
-     *
-     * The sample is using the global service cloud as a default.
-     * If you're developing an app for sovereign cloud users, please change the Microsoft Graph Resource URL accordingly.
-     * https://docs.microsoft.com/en-us/graph/deployments#microsoft-graph-and-graph-explorer-service-root-endpoints
      */
     private void callGraphAPI(final IAuthenticationResult authenticationResult) {
         MSGraphRequestWrapper.callGraphAPIUsingVolley(
@@ -350,30 +374,33 @@ public class MultipleAccountModeFragment extends Fragment {
     }
 
     /**
-     * Updates UI based on the obtained account list.
+     * Updates UI based on the current account.
      */
-    private void updateUI(@NonNull final List<IAccount> result) {
-
-        if (result.size() > 0) {
-            removeAccountButton.setEnabled(true);
+    private void updateUI() {
+        if (mAccount != null) {
+            signInButton.setEnabled(false);
+            signOutButton.setEnabled(true);
             callGraphApiInteractiveButton.setEnabled(true);
             callGraphApiSilentButton.setEnabled(true);
+            currentUserTextView.setText(mAccount.getUsername());
         } else {
-            removeAccountButton.setEnabled(false);
-            callGraphApiInteractiveButton.setEnabled(true);
+            signInButton.setEnabled(true);
+            signOutButton.setEnabled(false);
+            callGraphApiInteractiveButton.setEnabled(false);
             callGraphApiSilentButton.setEnabled(false);
+            currentUserTextView.setText("None");
         }
 
-        final ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(
-                getContext(), android.R.layout.simple_spinner_item,
-                new ArrayList<String>() {{
-                    for (final IAccount account : result)
-                        add(account.getUsername());
-                }}
-        );
+        deviceModeTextView.setText(mSingleAccountApp.isSharedDevice() ? "Shared" : "Non-shared");
+    }
 
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        accountListSpinner.setAdapter(dataAdapter);
-        dataAdapter.notifyDataSetChanged();
+    /**
+     * Updates UI when app sign out succeeds
+     */
+    private void showToastOnSignOut() {
+        final String signOutText = "Signed Out.";
+        currentUserTextView.setText("");
+        Toast.makeText(getContext(), signOutText, Toast.LENGTH_SHORT)
+                .show();
     }
 }

@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.azuresamples.msalandroidapp;
+package com.saigonthink.pocb2c.cardapp;
 
 /**
  * This interface must be implemented by activities that contain this
