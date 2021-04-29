@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package com.azuresamples.msalandroidapp;
+package com.saigonthink.pocb2c.bookingapp;
 
 import android.os.Bundle;
 
@@ -129,15 +129,15 @@ public class MainActivity extends AppCompatActivity
     private void setHeaderString(final AppFragment fragment){
         switch (fragment) {
             case SingleAccount:
-                getSupportActionBar().setTitle("Single Account Mode");
+                getSupportActionBar().setTitle("Booking: Single Account Mode");
                 return;
 
             case MultipleAccount:
-                getSupportActionBar().setTitle("Multiple Account Mode");
+                getSupportActionBar().setTitle("Booking: Multiple Account Mode");
                 return;
 
             case B2C:
-                getSupportActionBar().setTitle("B2C Mode");
+                getSupportActionBar().setTitle("Booking: B2C Mode");
                 return;
         }
     }
