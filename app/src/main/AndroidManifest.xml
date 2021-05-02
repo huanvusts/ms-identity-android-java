@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.saigonthink.pocb2c.bookingapp">
+    package="com.saigonthink.pocb2c.bookingapp"
+    android:sharedUserId="@string/share_user_id">
 
     <application
         android:allowBackup="true"

@@ -1,13 +1,22 @@
 {
-  "client_id" : "0984a7b6-bc13-4141-8b0d-8f767e136bb7",
-  "authorization_user_agent" : "DEFAULT",
-  "redirect_uri" : "msauth://com.azuresamples.msalandroidapp/1wIqXSqBj7w%2Bh11ZifsnqwgyKrY%3D",
+  "client_id" : "a07ecc71-a16d-4327-a231-7d6a60d052ea",
+  "redirect_uri" : "msauth://com.saigonthink.poc.b2c/JT6%2BNmaebjCknIwbtnUv6DSy3hM%3D",
   "account_mode" : "SINGLE",
-  "broker_redirect_uri_registered": true,
-  "authorities" : [
+  "broker_redirect_uri_registered": false,
+  "authorization_user_agent" : "BROWSER",
+  "authorities": [
     {
-      "type": "AAD",
-      "authority_url": "https://login.microsoftonline.com/common"
+      "type": "B2C",
+      "authority_url": "https://stpocb2c.b2clogin.com/tfp/stpocb2c.onmicrosoft.com/B2C_1_poc_signup_signin/",
+      "default": true
+    },
+    {
+      "type": "B2C",
+      "authority_url": "https://stpocb2c.b2clogin.com/tfp/stpocb2c.onmicrosoft.com/B2C_1_PoC_EditProfile/"
+    },
+    {
+      "type": "B2C",
+      "authority_url": "https://stpocb2c.b2clogin.com/tfp/stpocb2c.onmicrosoft.com/B2C_1_PoC_Reset/"
     }
   ]
 }

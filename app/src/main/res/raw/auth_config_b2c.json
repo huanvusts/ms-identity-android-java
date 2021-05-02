@@ -2,7 +2,8 @@
   "client_id" : "a07ecc71-a16d-4327-a231-7d6a60d052ea",
   "redirect_uri" : "msauth://com.saigonthink.poc.b2c/JT6%2BNmaebjCknIwbtnUv6DSy3hM%3D",
   "account_mode" : "MULTIPLE",
-  "broker_redirect_uri_registered": true,
+  "broker_redirect_uri_registered": false,
+  "authorization_user_agent" : "BROWSER",
   "authorities": [
     {
       "type": "B2C",

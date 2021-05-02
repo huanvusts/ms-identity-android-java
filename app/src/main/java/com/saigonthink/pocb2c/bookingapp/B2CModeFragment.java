@@ -23,11 +23,15 @@
 
 package com.saigonthink.pocb2c.bookingapp;
 
+import android.app.Activity;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,9 +54,26 @@ import com.microsoft.identity.client.exception.MsalClientException;
 import com.microsoft.identity.client.exception.MsalException;
 import com.microsoft.identity.client.exception.MsalServiceException;
 import com.microsoft.identity.client.exception.MsalUiRequiredException;
+import com.microsoft.identity.common.WarningType;
+import com.microsoft.identity.common.adal.internal.cache.StorageHelper;
+import com.microsoft.identity.common.internal.cache.SharedPreferencesFileManager;
+import com.microsoft.identity.common.internal.logging.Logger;
 
+import android.content.Context;
+import com.microsoft.identity.common.internal.cache.SharedPreferencesAccountCredentialCache;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Implementation sample for 'B2C' mode.
@@ -61,6 +82,8 @@ public class B2CModeFragment extends Fragment {
     private static final String TAG = B2CModeFragment.class.getSimpleName();
 
     /* UI & Debugging Variables */
+    Button sendTokenButton;
+    Button testButton;
     Button removeAccountButton;
     Button runUserFlowButton;
     Button acquireTokenSilentButton;
@@ -107,6 +130,8 @@ public class B2CModeFragment extends Fragment {
      * Initializes UI variables and callbacks.
      */
     private void initializeUI(@NonNull final View view) {
+        sendTokenButton = view.findViewById(R.id.btn_sendToken);
+        testButton = view.findViewById(R.id.btn_test);
         removeAccountButton = view.findViewById(R.id.btn_removeAccount);
         runUserFlowButton = view.findViewById(R.id.btn_runUserFlow);
         acquireTokenSilentButton = view.findViewById(R.id.btn_acquireTokenSilently);
@@ -188,6 +213,60 @@ public class B2CModeFragment extends Fragment {
                                 displayError(exception);
                             }
                         });
+            }
+        });
+
+        sendTokenButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (b2cApp == null) {
+                    return;
+                }
+            }
+        });
+
+        testButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (b2cApp == null) {
+                    return;
+                }
+
+                Context appContext = getContext();
+
+                SharedPreferences appPrefs = appContext.getSharedPreferences(
+                        SharedPreferencesAccountCredentialCache.DEFAULT_ACCOUNT_CREDENTIAL_SHARED_PREFERENCES, Activity.MODE_PRIVATE);
+                @SuppressWarnings(WarningType.unchecked_warning) final Map<String, String> entries = (Map<String, String>) appPrefs.getAll();
+                final Iterator<Map.Entry<String, String>> iterator = entries.entrySet().iterator();
+
+                String encryptKey = null;
+                final File keyFile = new File(appContext.getDir(appContext.getPackageName(), Context.MODE_PRIVATE),"adalks");
+                if (keyFile.exists()) {
+                    try {
+                        final InputStream in = new FileInputStream(keyFile);
+                        final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                        final byte[] buffer = new byte[1024];
+                        int count;
+                        while ((count = in.read(buffer)) != -1) {
+                            bytes.write(buffer, 0, count);
+                        }
+                        final byte[] byteArray = bytes.toByteArray();
+                        encryptKey = new String(byteArray);
+                        in.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                SharedPreferencesFileManager fileManager = SharedPreferencesFileManager.getSharedPreferences(appContext,
+                        SharedPreferencesAccountCredentialCache.DEFAULT_ACCOUNT_CREDENTIAL_SHARED_PREFERENCES,
+                        -1,
+                        new StorageHelper(appContext));
+
+                final Iterator<Map.Entry<String, String>> fileIterator = fileManager.getAll().entrySet().iterator();
+                while (fileIterator.hasNext()) {
+                    final Map.Entry<String, String> entry = fileIterator.next();
+                    String key = entry.getKey();
+                    String value = entry.getValue();
+                }
             }
         });
     }
