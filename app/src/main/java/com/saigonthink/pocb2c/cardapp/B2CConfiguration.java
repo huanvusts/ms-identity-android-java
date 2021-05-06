@@ -91,6 +91,6 @@ public class B2CConfiguration {
      */
     public static List<String> getScopes() {
         return Arrays.asList(
-                "https://stpocb2c.onmicrosoft.com/pocapi/test.read");
+                "https://stpocb2c.onmicrosoft.com/pocapi-carddebug/user_impersonation");
     }
 }

@@ -1,7 +1,7 @@
 {
-  "client_id" : "0984a7b6-bc13-4141-8b0d-8f767e136bb7",
+  "client_id" : "36a7f4b0-a74f-4040-88ab-774057e75336",
   "authorization_user_agent" : "DEFAULT",
-  "redirect_uri" : "msauth://com.azuresamples.msalandroidapp/1wIqXSqBj7w%2Bh11ZifsnqwgyKrY%3D",
+  "redirect_uri" : "msauth://com.saigonthink.pocb2c.carddebug/c72LoP5fYKqGDe2EXtQirGfSojo%3D",
   "account_mode" : "MULTIPLE",
   "broker_redirect_uri_registered": true,
   "authorities" : [

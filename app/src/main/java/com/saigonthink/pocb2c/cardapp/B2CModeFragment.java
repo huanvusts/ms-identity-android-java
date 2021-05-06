@@ -144,7 +144,7 @@ public class B2CModeFragment extends Fragment {
                         .startAuthorizationFromActivity(getActivity())
                         .fromAuthority(B2CConfiguration.getAuthorityFromPolicyName(policyListSpinner.getSelectedItem().toString()))
                         .withScopes(B2CConfiguration.getScopes())
-                        .withPrompt(Prompt.LOGIN)
+                        .withPrompt(Prompt.WHEN_REQUIRED)
                         .withCallback(getAuthInteractiveCallback())
                         .build();
 

@@ -31,8 +31,8 @@
                     note that the leading "/" is required for android:path
                 -->
                 <data
-                    android:host="com.saigonthink.poc.b2c"
-                    android:path="/JT6+NmaebjCknIwbtnUv6DSy3hM="
+                    android:host="com.saigonthink.pocb2c.carddebug"
+                    android:path="/c72LoP5fYKqGDe2EXtQirGfSojo="
                     android:scheme="msauth" />
             </intent-filter>
         </activity>
