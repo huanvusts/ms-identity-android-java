@@ -115,12 +115,12 @@
                     android:orientation="horizontal">
 
                     <Button
-                        android:id="@+id/btn_sendToken"
+                        android:id="@+id/btn_getWeatherForecast"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="5"
                         android:enabled="true"
-                        android:text="Clone/Send Token" />
+                        android:text="Get Weather Forecast" />
 
                     <Button
                         android:id="@+id/btn_test"

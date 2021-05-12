@@ -25,13 +25,11 @@ package com.saigonthink.pocb2c.bookingapp;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,6 +39,8 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.microsoft.identity.client.AcquireTokenParameters;
 import com.microsoft.identity.client.AuthenticationCallback;
 import com.microsoft.identity.client.IAccount;
@@ -57,19 +57,17 @@ import com.microsoft.identity.client.exception.MsalUiRequiredException;
 import com.microsoft.identity.common.WarningType;
 import com.microsoft.identity.common.adal.internal.cache.StorageHelper;
 import com.microsoft.identity.common.internal.cache.SharedPreferencesFileManager;
-import com.microsoft.identity.common.internal.logging.Logger;
 
 import android.content.Context;
 import com.microsoft.identity.common.internal.cache.SharedPreferencesAccountCredentialCache;
 
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -82,7 +80,7 @@ public class B2CModeFragment extends Fragment {
     private static final String TAG = B2CModeFragment.class.getSimpleName();
 
     /* UI & Debugging Variables */
-    Button sendTokenButton;
+    Button getWeatherForecastButton;
     Button testButton;
     Button removeAccountButton;
     Button runUserFlowButton;
@@ -93,6 +91,8 @@ public class B2CModeFragment extends Fragment {
     Spinner b2cUserList;
 
     private List<B2CUser> users;
+
+    private String accessToken;
 
     /* Azure AD Variables */
     private IMultipleAccountPublicClientApplication b2cApp;
@@ -130,7 +130,7 @@ public class B2CModeFragment extends Fragment {
      * Initializes UI variables and callbacks.
      */
     private void initializeUI(@NonNull final View view) {
-        sendTokenButton = view.findViewById(R.id.btn_sendToken);
+        getWeatherForecastButton = view.findViewById(R.id.btn_getWeatherForecast);
         testButton = view.findViewById(R.id.btn_test);
         removeAccountButton = view.findViewById(R.id.btn_removeAccount);
         runUserFlowButton = view.findViewById(R.id.btn_runUserFlow);
@@ -216,11 +216,10 @@ public class B2CModeFragment extends Fragment {
             }
         });
 
-        sendTokenButton.setOnClickListener(new View.OnClickListener() {
+        getWeatherForecastButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (b2cApp == null) {
-                    return;
-                }
+                String testUrl = "https://app-fetching-data-web-api.azurewebsites.net/api/v1/WeatherForecast";
+                callTestAPI(testUrl, accessToken);
             }
         });
 
@@ -340,6 +339,8 @@ public class B2CModeFragment extends Fragment {
                 /* display result info */
                 displayResult(authenticationResult);
 
+                accessToken = authenticationResult.getAccessToken();
+
                 /* Reload account asynchronously to get the up-to-date list. */
                 loadAccounts();
             }
@@ -426,5 +427,40 @@ public class B2CModeFragment extends Fragment {
         dataAdapter.notifyDataSetChanged();
     }
 
+    private void callTestAPI(String testUrl, String accessToken) {
+        MSGraphRequestWrapper.callTestAPIUsingVolley(
+                getContext(),
+                testUrl,
+                accessToken,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        /* Successfully called graph, process data and send to UI */
+                        Log.d(TAG, "Response: " + response.toString());
+                        displayTestApiResult(response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d(TAG, "Error: " + error.toString());
+                        displayError(error);
+                    }
+                });
+    }
+
+    private void displayTestApiResult(@NonNull final String result) {
+//        String output = null;
+//        try {
+//            output = "User ID :" + result.getString("userId") + "\n" +
+//                    "ID : " + result.getString("id") + "\n" +
+//                    "Title : " + result.getString("title") + "\n" +
+//                    "Completed : " + result.getString("completed") + "\n";
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+
+        logTextView.setText(result.toString());
+    }
 }
 
