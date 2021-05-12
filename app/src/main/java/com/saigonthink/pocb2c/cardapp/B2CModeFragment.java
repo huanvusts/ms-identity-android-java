@@ -195,6 +195,7 @@ public class B2CModeFragment extends Fragment {
                             public void onRemoved() {
                                 logTextView.setText("Signed Out.");
                                 loadAccounts();
+                                accessToken = "";
                             }
 
                             @Override
