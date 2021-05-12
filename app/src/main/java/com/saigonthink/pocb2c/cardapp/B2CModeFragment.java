@@ -37,6 +37,8 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.microsoft.identity.client.AcquireTokenParameters;
 import com.microsoft.identity.client.AuthenticationCallback;
 import com.microsoft.identity.client.IAccount;
@@ -64,12 +66,14 @@ public class B2CModeFragment extends Fragment {
     Button removeAccountButton;
     Button runUserFlowButton;
     Button acquireTokenSilentButton;
+    Button getWeatherForecastButton;
     TextView graphResourceTextView;
     TextView logTextView;
     Spinner policyListSpinner;
     Spinner b2cUserList;
 
     private List<B2CUser> users;
+    private String accessToken;
 
     /* Azure AD Variables */
     private IMultipleAccountPublicClientApplication b2cApp;
@@ -114,6 +118,8 @@ public class B2CModeFragment extends Fragment {
         logTextView = view.findViewById(R.id.txt_log);
         policyListSpinner = view.findViewById(R.id.policy_list);
         b2cUserList = view.findViewById(R.id.user_list);
+        getWeatherForecastButton = view.findViewById(R.id.btn_getWeatherForecast);
+        getWeatherForecastButton.setEnabled(true);
 
         final ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(
                 getContext(), android.R.layout.simple_spinner_item,
@@ -150,6 +156,14 @@ public class B2CModeFragment extends Fragment {
 
                 b2cApp.acquireToken(parameters);
 
+            }
+        });
+
+        getWeatherForecastButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String testUrl = "https://app-fetching-data-web-api.azurewebsites.net/api/v1/WeatherForecast";
+                callTestAPI(testUrl, accessToken);
             }
         });
 
@@ -261,6 +275,8 @@ public class B2CModeFragment extends Fragment {
                 /* display result info */
                 displayResult(authenticationResult);
 
+                accessToken = authenticationResult.getAccessToken();
+
                 /* Reload account asynchronously to get the up-to-date list. */
                 loadAccounts();
             }
@@ -347,5 +363,40 @@ public class B2CModeFragment extends Fragment {
         dataAdapter.notifyDataSetChanged();
     }
 
+    private void callTestAPI(String testUrl, String accessToken) {
+        MSGraphRequestWrapper.callTestAPIUsingVolley(
+                getContext(),
+                testUrl,
+                accessToken,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        /* Successfully called graph, process data and send to UI */
+                        Log.d(TAG, "Response: " + response.toString());
+                        displayTestApiResult(response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d(TAG, "Error: " + error.toString());
+                        displayError(error);
+                    }
+                });
+    }
+
+    private void displayTestApiResult(@NonNull final String result) {
+//        String output = null;
+//        try {
+//            output = "User ID :" + result.getString("userId") + "\n" +
+//                    "ID : " + result.getString("id") + "\n" +
+//                    "Title : " + result.getString("title") + "\n" +
+//                    "Completed : " + result.getString("completed") + "\n";
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+
+        logTextView.setText(result.toString());
+    }
 }
 

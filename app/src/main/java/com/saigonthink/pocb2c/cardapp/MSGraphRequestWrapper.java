@@ -33,6 +33,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONObject;
@@ -75,6 +76,46 @@ public class MSGraphRequestWrapper {
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, graphResourceUrl,
                 parameters, responseListener, errorListener) {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Authorization", "Bearer " + accessToken);
+                return headers;
+            }
+        };
+
+        Log.d(TAG, "Adding HTTP GET to Queue, Request: " + request.toString());
+
+        request.setRetryPolicy(new DefaultRetryPolicy(
+                3000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        queue.add(request);
+    }
+
+    public static void callTestAPIUsingVolley(@NonNull final Context context,
+                                              @NonNull final String testUrl,
+                                              @NonNull final String accessToken,
+                                              @NonNull final Response.Listener<String> responseListener,
+                                              @NonNull final Response.ErrorListener errorListener) {
+        Log.d(TAG, "Starting volley request to graph");
+
+        /* Make sure we have a token to send to graph */
+        if (accessToken == null || accessToken.length() == 0) {
+            return;
+        }
+
+        RequestQueue queue = Volley.newRequestQueue(context);
+        JSONObject parameters = new JSONObject();
+
+//        try {
+//            parameters.put("key", "value");
+//        } catch (Exception e) {
+//            Log.d(TAG, "Failed to put parameters: " + e.toString());
+//        }
+
+        StringRequest request = new StringRequest(Request.Method.GET, testUrl,
+                responseListener, errorListener) {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
