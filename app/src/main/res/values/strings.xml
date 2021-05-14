@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">B2c_Booking</string>
-    <string name="share_user_id">com.saigonthink.poc</string>
+    <string name="app_name">B2C_SAP</string>
+    <string name="share_user_id">vn.com.vpbank.ssob2csapapp</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Android Studio</string>

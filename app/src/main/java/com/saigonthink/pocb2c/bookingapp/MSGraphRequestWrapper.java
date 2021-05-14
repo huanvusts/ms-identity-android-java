@@ -93,11 +93,11 @@ public class MSGraphRequestWrapper {
         queue.add(request);
     }
 
-    public static void callTestAPIUsingVolley(@NonNull final Context context,
-                                               @NonNull final String testUrl,
-                                               @NonNull final String accessToken,
-                                               @NonNull final Response.Listener<String> responseListener,
-                                               @NonNull final Response.ErrorListener errorListener) {
+    public static void callGetWeatherForecastAPIUsingVolley(@NonNull final Context context,
+                                                            @NonNull final String testUrl,
+                                                            @NonNull final String accessToken,
+                                                            @NonNull final Response.Listener<String> responseListener,
+                                                            @NonNull final Response.ErrorListener errorListener) {
         Log.d(TAG, "Starting volley request to graph");
 
         /* Make sure we have a token to send to graph */

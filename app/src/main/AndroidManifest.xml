@@ -34,8 +34,8 @@
                     note that the leading "/" is required for android:path
                 -->
                 <data
-                    android:host="com.saigonthink.poc.b2c"
-                    android:path="/JT6+NmaebjCknIwbtnUv6DSy3hM="
+                    android:host="vn.com.vpbank.ssob2csapapp"
+                    android:path="/gYfucgrOlZ3FLWgYctqk1bCxZbo="
                     android:scheme="msauth" />
             </intent-filter>
         </activity>

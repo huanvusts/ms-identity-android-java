@@ -129,15 +129,15 @@ public class MainActivity extends AppCompatActivity
     private void setHeaderString(final AppFragment fragment){
         switch (fragment) {
             case SingleAccount:
-                getSupportActionBar().setTitle("Booking: Single Account Mode");
+                getSupportActionBar().setTitle("SAP: Single Account Mode");
                 return;
 
             case MultipleAccount:
-                getSupportActionBar().setTitle("Booking: Multiple Account Mode");
+                getSupportActionBar().setTitle("SAP: Multiple Account Mode");
                 return;
 
             case B2C:
-                getSupportActionBar().setTitle("Booking: B2C Mode");
+                getSupportActionBar().setTitle("SAP: B2C Mode");
                 return;
         }
     }
