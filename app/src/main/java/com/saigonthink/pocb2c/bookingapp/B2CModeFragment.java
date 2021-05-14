@@ -23,13 +23,9 @@
 
 package com.saigonthink.pocb2c.bookingapp;
 
-import android.app.Activity;
-import android.content.SharedPreferences;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,6 +34,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -54,24 +53,9 @@ import com.microsoft.identity.client.exception.MsalClientException;
 import com.microsoft.identity.client.exception.MsalException;
 import com.microsoft.identity.client.exception.MsalServiceException;
 import com.microsoft.identity.client.exception.MsalUiRequiredException;
-import com.microsoft.identity.common.WarningType;
-import com.microsoft.identity.common.adal.internal.cache.StorageHelper;
-import com.microsoft.identity.common.internal.cache.SharedPreferencesFileManager;
 
-import android.content.Context;
-import com.microsoft.identity.common.internal.cache.SharedPreferencesAccountCredentialCache;
-
-import org.json.JSONObject;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Implementation sample for 'B2C' mode.
@@ -92,7 +76,7 @@ public class B2CModeFragment extends Fragment {
 
     private List<B2CUser> users;
 
-    private String accessToken;
+    private String accessToken = "";
 
     /* Azure AD Variables */
     private IMultipleAccountPublicClientApplication b2cApp;
@@ -204,6 +188,20 @@ public class B2CModeFragment extends Fragment {
                         new IMultipleAccountPublicClientApplication.RemoveAccountCallback() {
                             @Override
                             public void onRemoved() {
+                                // Redirect to Azure B2CUI
+                                String tenantName = "stpocb2c";
+                                String policy = "B2C_1_poc_signup_signin";
+                                String clientId = "a07ecc71-a16d-4327-a231-7d6a60d052ea";
+                                String scope = "https%3A%2F%2Fstpocb2c.onmicrosoft.com%2F20f88c09-5a06-46b9-a0b2-5c654df73ad6%2Fapp.read.all%20openid%20offline_access%20profile";
+                                String redirect_uri = "msauth%3A%2F%2Fcom.saigonthink.poc.b2c%2FJT6%252BNmaebjCknIwbtnUv6DSy3hM%253D";
+                                String logoutURL = String.format("https://%s.b2clogin.com/tfp/%s.onmicrosoft.com/%s/oAuth2/v2.0/logout?x-client-CPU=arm64-v8a&response_type=code&x-client-Ver=1.5.9&code_challenge_method=S256&x-client-DM=SM-G955F&x-client-OS=28&x-client-SKU=MSAL.Android&client_id=%s&client-request-id=2a7abee1-7ab6-4900-ada7-5231c06d9032&instance_aware=false&scope=%s&redirect_uri=%s&state=YjU4OTY2MmEtNGVmMi00Yzc1LTgzYTMtYjIwMWUzYzJmMWE2LWJlODBhOWI4LTFlOTItNDM2Mi1iM2YzLWI0MWJiYWE4MGZmZA&code_challenge=kZ0q7uL1Z96PthYvLQiOw44QcT3XoHJhRa2HR-Bv_0U",tenantName, tenantName, policy, clientId, scope, redirect_uri);
+                                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(logoutURL));
+                                browserIntent.addCategory(Intent.CATEGORY_APP_BROWSER);
+                                if (browserIntent.resolveActivity(getContext().getPackageManager()) != null) {
+                                    startActivity(browserIntent);
+                                }
+
+                                // Clear local access token and reload
                                 logTextView.setText("Signed Out.");
                                 loadAccounts();
                                 accessToken = "";
@@ -219,54 +217,13 @@ public class B2CModeFragment extends Fragment {
 
         getWeatherForecastButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                String testUrl = "https://app-fetching-data-web-api.azurewebsites.net/api/v1/WeatherForecast";
-                callTestAPI(testUrl, accessToken);
+                String apiURL = "https://app-fetching-data-web-api.azurewebsites.net/api/v1/WeatherForecast";
+                callGetWeatherForecastAPI(apiURL, accessToken);
             }
         });
 
         testButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (b2cApp == null) {
-                    return;
-                }
-
-                Context appContext = getContext();
-
-                SharedPreferences appPrefs = appContext.getSharedPreferences(
-                        SharedPreferencesAccountCredentialCache.DEFAULT_ACCOUNT_CREDENTIAL_SHARED_PREFERENCES, Activity.MODE_PRIVATE);
-                @SuppressWarnings(WarningType.unchecked_warning) final Map<String, String> entries = (Map<String, String>) appPrefs.getAll();
-                final Iterator<Map.Entry<String, String>> iterator = entries.entrySet().iterator();
-
-                String encryptKey = null;
-                final File keyFile = new File(appContext.getDir(appContext.getPackageName(), Context.MODE_PRIVATE),"adalks");
-                if (keyFile.exists()) {
-                    try {
-                        final InputStream in = new FileInputStream(keyFile);
-                        final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                        final byte[] buffer = new byte[1024];
-                        int count;
-                        while ((count = in.read(buffer)) != -1) {
-                            bytes.write(buffer, 0, count);
-                        }
-                        final byte[] byteArray = bytes.toByteArray();
-                        encryptKey = new String(byteArray);
-                        in.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                SharedPreferencesFileManager fileManager = SharedPreferencesFileManager.getSharedPreferences(appContext,
-                        SharedPreferencesAccountCredentialCache.DEFAULT_ACCOUNT_CREDENTIAL_SHARED_PREFERENCES,
-                        -1,
-                        new StorageHelper(appContext));
-
-                final Iterator<Map.Entry<String, String>> fileIterator = fileManager.getAll().entrySet().iterator();
-                while (fileIterator.hasNext()) {
-                    final Map.Entry<String, String> entry = fileIterator.next();
-                    String key = entry.getKey();
-                    String value = entry.getValue();
-                }
             }
         });
     }
@@ -305,6 +262,8 @@ public class B2CModeFragment extends Fragment {
 
                 /* Successfully got a token. */
                 displayResult(authenticationResult);
+
+                accessToken = authenticationResult.getAccessToken();
             }
 
             @Override
@@ -403,6 +362,10 @@ public class B2CModeFragment extends Fragment {
         logTextView.setText(exception.toString());
     }
 
+    private void displayError(@NonNull final String exception) {
+        logTextView.setText(exception);
+    }
+
     /**
      * Updates UI based on the obtained user list.
      */
@@ -428,7 +391,13 @@ public class B2CModeFragment extends Fragment {
         dataAdapter.notifyDataSetChanged();
     }
 
-    private void callTestAPI(String testUrl, String accessToken) {
+    private void callGetWeatherForecastAPI(String testUrl, String accessToken) {
+
+        if (accessToken.isEmpty()) {
+            displayError("Access token is required!");
+            return;
+        }
+
         MSGraphRequestWrapper.callTestAPIUsingVolley(
                 getContext(),
                 testUrl,
@@ -451,16 +420,6 @@ public class B2CModeFragment extends Fragment {
     }
 
     private void displayTestApiResult(@NonNull final String result) {
-//        String output = null;
-//        try {
-//            output = "User ID :" + result.getString("userId") + "\n" +
-//                    "ID : " + result.getString("id") + "\n" +
-//                    "Title : " + result.getString("title") + "\n" +
-//                    "Completed : " + result.getString("completed") + "\n";
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-
         logTextView.setText(result.toString());
     }
 }

@@ -3,6 +3,8 @@
     package="com.saigonthink.pocb2c.bookingapp"
     android:sharedUserId="@string/share_user_id">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
