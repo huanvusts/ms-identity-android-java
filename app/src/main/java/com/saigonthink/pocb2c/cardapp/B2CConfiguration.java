@@ -62,19 +62,25 @@ public class B2CConfiguration {
      */
     public final static String[] Policies = {
             "B2C_1_poc_signup_signin",
-            "B2C_1_PoC_EditProfile",
-            "B2C_1_PoC_Reset"
+//            "B2C_1_PoC_EditProfile",
+//            "B2C_1_PoC_Reset"
     };
 
     /**
      * Name of your B2C tenant hostname.
      */
-    final static String azureAdB2CHostName = "stpocb2c.b2clogin.com";
+    final static String azureAdB2CHostName = "pocssovpb.b2clogin.com";
 
     /**
      * Name of your B2C tenant.
      */
-    final static String tenantName = "stpocb2c.onmicrosoft.com";
+    final static String tenantName = "pocssovpb.onmicrosoft.com";
+
+    final static String simpleTenantName = "pocssovpb";
+    final static String policyName = "B2C_1_poc_signup_signin";
+    final static String clientId = "7790bdf2-dc59-4829-9d90-692095fc0700";
+    final static String scopeUrl = "https://pocssovpb.onmicrosoft.com/bdfe8d5f-4b33-4b0c-87cf-c2d50473a0d6/card.persons.all openid offline_access";
+    final static String redirectUri = "msauth://vn.com.vpbank.ssob2ccardapp/gYfucgrOlZ3FLWgYctqk1bCxZb0%3D";
 
     /**
      * Returns an authority for the given policy name.
@@ -91,6 +97,6 @@ public class B2CConfiguration {
      */
     public static List<String> getScopes() {
         return Arrays.asList(
-                "https://stpocb2c.onmicrosoft.com/20f88c09-5a06-46b9-a0b2-5c654df73ad6/app.read.all");
+                "https://pocssovpb.onmicrosoft.com/bdfe8d5f-4b33-4b0c-87cf-c2d50473a0d6/card.persons.all");
     }
 }

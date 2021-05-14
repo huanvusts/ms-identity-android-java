@@ -123,7 +123,7 @@
                         android:layout_weight="10"
                         android:enabled="false"
                         android:gravity="center"
-                        android:text="Get Weather Forecast" />
+                        android:text="Get Persons" />
                 </LinearLayout>
 
                 <TextView

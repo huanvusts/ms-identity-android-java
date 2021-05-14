@@ -163,7 +163,7 @@ public class B2CModeFragment extends Fragment {
         getWeatherForecastButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String testUrl = "https://app-fetching-data-web-api.azurewebsites.net/api/v1/WeatherForecast";
+                String testUrl = "https://dev-poc-api-card.azurewebsites.net/api/v1/persons";
                 callTestAPI(testUrl, accessToken);
             }
         });
@@ -195,18 +195,13 @@ public class B2CModeFragment extends Fragment {
                             @Override
                             public void onRemoved() {
                                 // Redirect to Azure B2CUI
-                                String tenantName = "stpocb2c";
-                                String policy = "B2C_1_poc_signup_signin";
-                                String clientId = "36a7f4b0-a74f-4040-88ab-774057e75336";
-                                String scope = "https%3A%2F%2Fstpocb2c.onmicrosoft.com%2F20f88c09-5a06-46b9-a0b2-5c654df73ad6%2Fapp.read.all%20openid%20offline_access%20profile";
-                                String redirect_uri = "msauth://com.saigonthink.pocb2c.carddebug/c72LoP5fYKqGDe2EXtQirGfSojo%3D";
                                 String logoutURL = String.format("https://%s.b2clogin.com/tfp/%s.onmicrosoft.com/%s/oAuth2/v2.0/logout?response_type=code&x-client-Ver=1.5.9&code_challenge_method=S256&x-client-SKU=MSAL.Android&client_id=%s&instance_aware=false&scope=%s&redirect_uri=%s",
-                                        tenantName,
-                                        tenantName,
-                                        policy,
-                                        clientId,
-                                        scope,
-                                        redirect_uri);
+                                        B2CConfiguration.simpleTenantName,
+                                        B2CConfiguration.simpleTenantName,
+                                        B2CConfiguration.policyName,
+                                        B2CConfiguration.clientId,
+                                        B2CConfiguration.scopeUrl,
+                                        B2CConfiguration.redirectUri);
                                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(logoutURL));
                                 if (browserIntent.resolveActivity(getContext().getPackageManager()) != null) {
                                     startActivity(browserIntent);

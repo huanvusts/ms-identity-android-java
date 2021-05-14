@@ -1,22 +1,14 @@
 {
-  "client_id" : "36a7f4b0-a74f-4040-88ab-774057e75336",
-  "redirect_uri" : "msauth://com.saigonthink.pocb2c.carddebug/c72LoP5fYKqGDe2EXtQirGfSojo%3D",
+  "client_id" : "7790bdf2-dc59-4829-9d90-692095fc0700",
+  "redirect_uri" : "msauth://vn.com.vpbank.ssob2ccardapp/gYfucgrOlZ3FLWgYctqk1bCxZb0%3D",
   "account_mode" : "MULTIPLE",
   "broker_redirect_uri_registered": false,
   "authorization_user_agent" : "BROWSER",
   "authorities": [
     {
       "type": "B2C",
-      "authority_url": "https://stpocb2c.b2clogin.com/tfp/stpocb2c.onmicrosoft.com/B2C_1_poc_signup_signin/",
+      "authority_url": "https://pocssovpb.b2clogin.com/tfp/pocssovpb.onmicrosoft.com/B2C_1_poc_signup_signin/",
       "default": true
-    },
-    {
-      "type": "B2C",
-      "authority_url": "https://stpocb2c.b2clogin.com/tfp/stpocb2c.onmicrosoft.com/B2C_1_PoC_EditProfile/"
-    },
-    {
-      "type": "B2C",
-      "authority_url": "https://stpocb2c.b2clogin.com/tfp/stpocb2c.onmicrosoft.com/B2C_1_PoC_Reset/"
     }
   ]
 }
