@@ -200,7 +200,13 @@ public class B2CModeFragment extends Fragment {
                                 String clientId = "36a7f4b0-a74f-4040-88ab-774057e75336";
                                 String scope = "https%3A%2F%2Fstpocb2c.onmicrosoft.com%2F20f88c09-5a06-46b9-a0b2-5c654df73ad6%2Fapp.read.all%20openid%20offline_access%20profile";
                                 String redirect_uri = "msauth://com.saigonthink.pocb2c.carddebug/c72LoP5fYKqGDe2EXtQirGfSojo%3D";
-                                String logoutURL = String.format("https://%s.b2clogin.com/tfp/%s.onmicrosoft.com/%s/oAuth2/v2.0/logout?x-client-CPU=arm64-v8a&response_type=code&x-client-Ver=1.5.9&code_challenge_method=S256&x-client-DM=SM-G955F&x-client-OS=28&x-client-SKU=MSAL.Android&client_id=%s&client-request-id=2a7abee1-7ab6-4900-ada7-5231c06d9032&instance_aware=false&scope=%s&redirect_uri=%s&state=YjU4OTY2MmEtNGVmMi00Yzc1LTgzYTMtYjIwMWUzYzJmMWE2LWJlODBhOWI4LTFlOTItNDM2Mi1iM2YzLWI0MWJiYWE4MGZmZA&code_challenge=kZ0q7uL1Z96PthYvLQiOw44QcT3XoHJhRa2HR-Bv_0U",tenantName, tenantName, policy, clientId, scope, redirect_uri);
+                                String logoutURL = String.format("https://%s.b2clogin.com/tfp/%s.onmicrosoft.com/%s/oAuth2/v2.0/logout?response_type=code&x-client-Ver=1.5.9&code_challenge_method=S256&x-client-SKU=MSAL.Android&client_id=%s&instance_aware=false&scope=%s&redirect_uri=%s",
+                                        tenantName,
+                                        tenantName,
+                                        policy,
+                                        clientId,
+                                        scope,
+                                        redirect_uri);
                                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(logoutURL));
                                 if (browserIntent.resolveActivity(getContext().getPackageManager()) != null) {
                                     startActivity(browserIntent);
