@@ -23,11 +23,9 @@
 
 package com.saigonthink.pocb2c.cardapp;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,6 +34,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -73,7 +74,7 @@ public class B2CModeFragment extends Fragment {
     Spinner b2cUserList;
 
     private List<B2CUser> users;
-    private String accessToken;
+    private String accessToken = "";
 
     /* Azure AD Variables */
     private IMultipleAccountPublicClientApplication b2cApp;
@@ -193,6 +194,19 @@ public class B2CModeFragment extends Fragment {
                         new IMultipleAccountPublicClientApplication.RemoveAccountCallback() {
                             @Override
                             public void onRemoved() {
+                                // Redirect to Azure B2CUI
+                                String tenantName = "stpocb2c";
+                                String policy = "B2C_1_poc_signup_signin";
+                                String clientId = "36a7f4b0-a74f-4040-88ab-774057e75336";
+                                String scope = "https%3A%2F%2Fstpocb2c.onmicrosoft.com%2F20f88c09-5a06-46b9-a0b2-5c654df73ad6%2Fapp.read.all%20openid%20offline_access%20profile";
+                                String redirect_uri = "msauth://com.saigonthink.pocb2c.carddebug/c72LoP5fYKqGDe2EXtQirGfSojo%3D";
+                                String logoutURL = String.format("https://%s.b2clogin.com/tfp/%s.onmicrosoft.com/%s/oAuth2/v2.0/logout?x-client-CPU=arm64-v8a&response_type=code&x-client-Ver=1.5.9&code_challenge_method=S256&x-client-DM=SM-G955F&x-client-OS=28&x-client-SKU=MSAL.Android&client_id=%s&client-request-id=2a7abee1-7ab6-4900-ada7-5231c06d9032&instance_aware=false&scope=%s&redirect_uri=%s&state=YjU4OTY2MmEtNGVmMi00Yzc1LTgzYTMtYjIwMWUzYzJmMWE2LWJlODBhOWI4LTFlOTItNDM2Mi1iM2YzLWI0MWJiYWE4MGZmZA&code_challenge=kZ0q7uL1Z96PthYvLQiOw44QcT3XoHJhRa2HR-Bv_0U",tenantName, tenantName, policy, clientId, scope, redirect_uri);
+                                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(logoutURL));
+                                if (browserIntent.resolveActivity(getContext().getPackageManager()) != null) {
+                                    startActivity(browserIntent);
+                                }
+
+                                // Clear local access token and reload
                                 logTextView.setText("Signed Out.");
                                 loadAccounts();
                                 accessToken = "";
@@ -241,6 +255,8 @@ public class B2CModeFragment extends Fragment {
 
                 /* Successfully got a token. */
                 displayResult(authenticationResult);
+
+                accessToken = authenticationResult.getAccessToken();
             }
 
             @Override
@@ -339,6 +355,10 @@ public class B2CModeFragment extends Fragment {
         logTextView.setText(exception.toString());
     }
 
+    private void displayError(@NonNull final String exception) {
+        logTextView.setText(exception);
+    }
+
     /**
      * Updates UI based on the obtained user list.
      */
@@ -365,6 +385,12 @@ public class B2CModeFragment extends Fragment {
     }
 
     private void callTestAPI(String testUrl, String accessToken) {
+
+        if (accessToken.isEmpty()) {
+            displayError("Access token is required!");
+            return;
+        }
+
         MSGraphRequestWrapper.callTestAPIUsingVolley(
                 getContext(),
                 testUrl,
@@ -387,16 +413,6 @@ public class B2CModeFragment extends Fragment {
     }
 
     private void displayTestApiResult(@NonNull final String result) {
-//        String output = null;
-//        try {
-//            output = "User ID :" + result.getString("userId") + "\n" +
-//                    "ID : " + result.getString("id") + "\n" +
-//                    "Title : " + result.getString("title") + "\n" +
-//                    "Completed : " + result.getString("completed") + "\n";
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-
         logTextView.setText(result.toString());
     }
 }
